@@ -4,7 +4,9 @@ const cors = require("cors");
 const express = require("express");
 const bodyParser = require("body-parser");
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 5000;
+
+dotenv.config();
 
 dotenv.config();
 
@@ -12,10 +14,10 @@ app.use(cors());
 app.use(express.json());
 
 let con = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "SabBtaDu@12345",
-    database: "guestara"
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME
 })
 
 con.connect((err) => {
@@ -132,7 +134,7 @@ app.put('/category/:id', (req, res) => {
         category_descriptions,
         category_tax_app,
         category_tax,
-        category_tax_type} = req.body;
+        category_tax_type } = req.body;
 
     const sql = `
         UPDATE category
@@ -164,7 +166,7 @@ app.put('/subCategory/:id', (req, res) => {
         sub_category_image,
         sub_category_descriptions,
         sub_category_tax_app,
-        sub_category_tax} = req.body;
+        sub_category_tax } = req.body;
 
     const sql = `
         UPDATE sub_category
@@ -172,7 +174,7 @@ app.put('/subCategory/:id', (req, res) => {
             sub_category_image = ?,
             sub_category_descriptions = ?,
             sub_category_tax_app = ?,
-            sub_category_tax = ?,
+            sub_category_tax = ?
         WHERE sub_category_id = ?
     `
     con.query(sql, [sub_category_name, sub_category_image, sub_category_descriptions, sub_category_tax_app, sub_category_tax, id], (err, result) => {
@@ -197,9 +199,8 @@ app.put('/item/:id', (req, res) => {
         item_base_amount,
         item_discount,
         item_tax_app,
-        item_tax,
-        item_tax_type } = req.body;
-    
+        item_tax } = req.body;
+
     const item_total_amount = item_base_amount - item_discount;
 
     const sql = `
@@ -211,11 +212,10 @@ app.put('/item/:id', (req, res) => {
             item_discount = ?,
             item_tax_app = ?,
             item_tax = ?,
-            item_tax_type = ?,
             item_total_amount = ?
         WHERE item_id = ?
     `
-    con.query(sql, [item_name, item_image, item_descriptions, item_base_amount, item_discount, item_tax_app, item_tax, item_tax_type, item_total_amount, id], (err, result) => {
+    con.query(sql, [item_name, item_image, item_descriptions, item_base_amount, item_discount, item_tax_app, item_tax, item_total_amount, id], (err, result) => {
         if (err) {
             console.error("Error updating item:", err);
             return res.status(500).json({ error: "Database error while updating item" });
